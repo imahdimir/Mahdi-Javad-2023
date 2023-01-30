@@ -1,28 +1,23 @@
 """
 
     """
+
 import re
 from pathlib import Path
-import os
 
 import pandas as pd
 from githubdata import GitHubDataRepo
-from mirutil.ns import update_ns_module
+from mirutil.ns import update_ns_module , rm_ns_module
 from pyjarowinkler import distance
 
-##
-cwd = Path('ticker_match')
-os.chdir(cwd)
-
 update_ns_module()
-from ticker_match import ns as ns
+import ns
 
 gdu = ns.GDU()
 c = ns.Col()
 
 fp = Path('scores_with_firmticker.csv')
 
-##
 def find_similar_ticker_in_df(df , tic) :
     df['srch'] = tic
     fu = lambda x : distance.get_jaro_distance(tic , x , winkler = True)
@@ -59,6 +54,13 @@ def main() :
     df = pd.DataFrame(columns = [c.name , c.ftic])
 
     ##
+    if Path('temp.prq').exists() :
+        df1 = pd.read_parquet('temp.prq')
+
+        msk = dfb[c.tic].isin(df1[c.name])
+        dfb = dfb[~msk]
+
+    ##
     for i , row in dfb.iterrows() :
         tic = row[c.tic]
         df1 = find_similar_ticker_in_df(dfa , tic)
@@ -78,10 +80,28 @@ def main() :
         df.to_parquet('temp.prq' , index = False)
 
     ##
+    gdt = GitHubDataRepo(gdu.trg)
+    gdt.clone_overwrite()
 
     ##
+    df_fp = gdt.local_path / 'data.prq'
+    df.to_parquet(df_fp , index = False)
+
+    ##
+    msg = 'Updated by: '
+    msg += gdu.slf
+
+    ##
+    gdt.commit_and_push(msg)
+
+    ##
+    gdsn2f.rmdir()
+    gdt.rmdir()
+
+    rm_ns_module()
 
 ##
+
 
 if __name__ == "__main__" :
     main()

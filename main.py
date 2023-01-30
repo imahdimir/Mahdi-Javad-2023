@@ -7,7 +7,8 @@ from pathlib import Path
 
 import pandas as pd
 from githubdata import GitHubDataRepo
-from mirutil.ns import update_ns_module , rm_ns_module
+from mirutil.ns import rm_ns_module
+from mirutil.ns import update_ns_module
 from pyjarowinkler import distance
 
 update_ns_module()

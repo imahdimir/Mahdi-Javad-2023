@@ -67,7 +67,7 @@ def main() :
         df1 = find_similar_ticker_in_df(dfa , tic)
 
         print(tic)
-        print(df1[[c.name , c.ftic]].head(10))
+        print(df1[[c.name , c.ftic]].head(20))
 
         ind = input('Enter Index: ')
         if re.match(r'^\d+$' , ind) :
@@ -79,6 +79,9 @@ def main() :
             df = pd.concat([df , df2] , ignore_index = True)
 
         df.to_parquet('temp.prq' , index = False)
+
+    ##
+    df = pd.read_parquet('temp.prq')
 
     ##
     gdt = GitHubDataRepo(gdu.trg)
